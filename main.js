@@ -13,6 +13,7 @@ const {
     shell,
     dialog,
     powerMonitor,
+    session
 } = require('electron')
 const path = require('path')
 const isDev = require('electron-is-dev')
@@ -2187,3 +2188,17 @@ const { ipcRenderer } = require('electron/renderer')
 analytics.setEvent('main', 'start', 'v' + app.getVersion(), app.getVersion())
 analytics.setEvent('main', 'os', process.platform, process.platform)
 analytics.setScreen('main')
+
+// Adblocking
+const { ElectronBlocker } = require("@cliqz/adblocker-electron");
+const fetch = require("cross-fetch");
+ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then(blocker => {
+  blocker.enableBlockingInSession(session.defaultSession);
+});
+
+// youtube-non-stop
+const fs = require('fs');
+fs.readFile('./src/utils/youtube-non-stop/autoconfirm.js', 'utf-8', (err, data) => {
+    if (err) return console.log('Failed to load youtube-non-stop');
+    mainWindow.webContents.executeJavaScript(data);
+});
